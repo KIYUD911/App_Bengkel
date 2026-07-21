@@ -6,18 +6,21 @@ use App\Livewire\Dashboard\DashboardWidget;
 use App\Livewire\WorkOrder\WorkOrderList;
 use App\Livewire\WorkOrder\WorkOrderCreate;
 use App\Livewire\WorkOrder\WorkOrderDetail;
+use App\Livewire\WorkOrder\FeedbackForm;
 use App\Livewire\DirectSale\DirectSaleList;
 use App\Livewire\DirectSale\DirectSaleCreate;
 use App\Livewire\Customer\CustomerList;
 use App\Livewire\Customer\CustomerForm;
 use App\Livewire\Customer\CustomerDetail;
+use App\Livewire\Customer\WarrantyList;
 use App\Livewire\SparePart\SparePartList;
 use App\Livewire\SparePart\SparePartForm;
 use App\Livewire\SparePart\RestockForm;
 use App\Livewire\AuditLog\AuditLogList;
 use App\Livewire\Report\RevenueReport;
 use App\Livewire\Report\InventoryReport;
-
+use App\Livewire\Report\FeedbackSummary;
+use App\Livewire\RecycleBin\RecycleBinList;
 use App\Livewire\Auth\LoginForm;
 
 // ─── GUEST ROUTES (belum login) ─────────────────────────────
@@ -42,6 +45,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/', WorkOrderList::class)->name('index');
             Route::get('/create', WorkOrderCreate::class)->name('create');
             Route::get('/{workOrder}', WorkOrderDetail::class)->name('show');
+            Route::get('/{workOrder}/feedback', FeedbackForm::class)->name('feedback');
         });
 
         Route::prefix('direct-sales')->name('direct-sales.')->group(function () {
@@ -52,6 +56,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('customers')->name('customers.')->group(function () {
             Route::get('/', CustomerList::class)->name('index');
             Route::get('/create', CustomerForm::class)->name('create');
+            Route::get('/warranties', WarrantyList::class)->name('warranties');
             Route::get('/{customer}', CustomerDetail::class)->name('show');
             Route::get('/{customer}/edit', CustomerForm::class)->name('edit');
         });
@@ -76,9 +81,10 @@ Route::middleware('auth')->group(function () {
         Route::prefix('reports')->name('reports.')->group(function () {
             Route::get('/revenue', RevenueReport::class)->name('revenue');
             Route::get('/inventory', InventoryReport::class)->name('inventory');
+            Route::get('/feedback', FeedbackSummary::class)->name('feedback');
         });
 
         Route::get('/audit-logs', AuditLogList::class)->name('audit-logs.index');
-        Route::get('/recycle-bin', fn() => view('placeholder'))->name('recycle-bin');
+        Route::get('/recycle-bin', RecycleBinList::class)->name('recycle-bin');
     });
 });

@@ -49,11 +49,18 @@ class RestockForm extends Component
             $this->successMessage = "Stok berhasil ditambah {$this->qty} unit. Stok sekarang: {$this->sparePart->quantity_available} {$this->sparePart->unit}.";
             $this->qty = 1;
 
+            // Kirim toast notification
+            $this->dispatch('notify',
+                type: 'success',
+                message: "✅ Stok {$this->sparePart->name} bertambah {$this->qty} unit. Total: {$this->sparePart->quantity_available} {$this->sparePart->unit}."
+            );
+
             // Kirim event ke SparePartList (jika ada di halaman yang sama)
             $this->dispatch('stock-updated');
 
         } catch (\Throwable $e) {
             $this->errorMessage = 'Gagal restock: ' . $e->getMessage();
+            $this->dispatch('notify', type: 'error', message: 'Gagal restock: ' . $e->getMessage());
         }
     }
 

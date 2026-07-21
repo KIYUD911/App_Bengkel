@@ -605,6 +605,10 @@
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 Pelanggan (CRM)
             </a>
+            <a href="{{ route('customers.warranties') }}" class="nav-item {{ request()->routeIs('customers.warranties') ? 'active' : '' }}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Garansi
+            </a>
         </div>
         @endif
 
@@ -628,9 +632,13 @@
         <div class="nav-divider"></div>
         <div class="nav-section">
             <div class="nav-section-title">Laporan & Admin</div>
-            <a href="{{ route('reports.revenue') }}" class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+            <a href="{{ route('reports.revenue') }}" class="nav-item {{ request()->routeIs('reports.revenue','reports.inventory') ? 'active' : '' }}">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                 Laporan
+            </a>
+            <a href="{{ route('reports.feedback') }}" class="nav-item {{ request()->routeIs('reports.feedback') ? 'active' : '' }}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Feedback
             </a>
             <a href="{{ route('audit-logs.index') }}" class="nav-item {{ request()->routeIs('audit-logs.*') ? 'active' : '' }}">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -706,7 +714,7 @@
         </div>
     </header>
 
-    {{-- Flash Messages --}}
+    {{-- Flash Messages (Session) --}}
     @if(session('success'))
         <div class="alert alert-success" style="margin: 1rem 1.5rem 0; border-radius: var(--radius);" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" x-transition>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -721,6 +729,9 @@
         </div>
     @endif
 
+    {{-- ─── GLOBAL TOAST NOTIFICATION CONTAINER ─────────────── --}}
+    <div id="toastContainer" style="position:fixed;top:1.25rem;right:1.25rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;max-width:380px;pointer-events:none;"></div>
+
     {{-- Page Content --}}
     <main class="app-content">
         {{ $slot }}
@@ -729,6 +740,59 @@
 </div>
 
 @livewireScripts
+
+<script>
+// ─── Global Toast Notification System ────────────────────────
+window._toasts = [];
+
+function showToast(type, message) {
+    const icons = {
+        success: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+        error:   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+        warning: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+        info:    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+    };
+    const colors = {
+        success: { bg: '#F0FDF4', border: '#BBF7D0', color: '#16A34A' },
+        error:   { bg: '#FEF2F2', border: '#FECACA', color: '#DC2626' },
+        warning: { bg: '#FFFBEB', border: '#FDE68A', color: '#D97706' },
+        info:    { bg: '#ECFEFF', border: '#A5F3FC', color: '#0891B2' },
+    };
+    const cfg = colors[type] || colors.info;
+    const icon = icons[type] || icons.info;
+
+    const el = document.createElement('div');
+    el.style.cssText = `background:${cfg.bg};border:1px solid ${cfg.border};color:${cfg.color};border-radius:10px;padding:.875rem 1rem;box-shadow:0 12px 40px rgba(0,0,0,.12);pointer-events:auto;display:flex;align-items:flex-start;gap:.75rem;font-family:'Inter',sans-serif;font-size:.8125rem;animation:toastSlideIn .3s ease;max-width:380px;`;
+    el.innerHTML = `<span style="flex-shrink:0;margin-top:1px">${icon}</span><span style="flex:1;line-height:1.5">${message}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:inherit;opacity:.6;font-size:1.1rem;margin-left:.5rem;flex-shrink:0;">&times;</button>`;
+
+    const container = document.getElementById('toastContainer');
+    if (container) container.appendChild(el);
+
+    // Auto dismiss 5 detik
+    setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(20px)';
+        el.style.transition = 'all .3s ease';
+        setTimeout(() => el.remove(), 300);
+    }, 5000);
+}
+
+// Tambahkan animasi keyframe
+if (!document.getElementById('toastKeyframes')) {
+    const style = document.createElement('style');
+    style.id = 'toastKeyframes';
+    style.textContent = '@keyframes toastSlideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }';
+    document.head.appendChild(style);
+}
+
+// Livewire v3: listen event 'notify' dari semua component
+document.addEventListener('livewire:init', () => {
+    Livewire.on('notify', (data) => {
+        const { type = 'info', message = '' } = Array.isArray(data) ? data[0] : data;
+        showToast(type, message);
+    });
+});
+</script>
 
 @stack('scripts')
 </body>
