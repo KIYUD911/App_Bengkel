@@ -20,12 +20,14 @@ class SparePart extends Model
         'selling_price',
         'quantity_available',
         'unit',
+        'warranty_days',
     ];
 
     protected $casts = [
         'purchase_price'     => 'decimal:2',
         'selling_price'      => 'decimal:2',
         'quantity_available' => 'integer',
+        'warranty_days'      => 'integer',
     ];
 
     // ─── Relasi ──────────────────────────────────────────────
