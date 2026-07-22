@@ -43,13 +43,11 @@ class WorkOrderServiceTest extends TestCase
     {
         $wo1 = $this->service->createWorkOrder(
             ['customer_id' => $this->customer->id, 'customer_vehicle_id' => $this->vehicle->id, 'complaint' => 'Test 1', 'labour_cost' => 0],
-            [],
             $this->user
         );
 
         $wo2 = $this->service->createWorkOrder(
             ['customer_id' => $this->customer->id, 'customer_vehicle_id' => $this->vehicle->id, 'complaint' => 'Test 2', 'labour_cost' => 0],
-            [],
             $this->user
         );
 
@@ -64,7 +62,6 @@ class WorkOrderServiceTest extends TestCase
 
         $wo = $this->service->createWorkOrder(
             ['customer_id' => $this->customer->id, 'customer_vehicle_id' => $this->vehicle->id, 'complaint' => 'test', 'labour_cost' => 0],
-            [],
             $this->user
         );
 
@@ -80,9 +77,9 @@ class WorkOrderServiceTest extends TestCase
     {
         $wo = $this->service->createWorkOrder(
             ['customer_id' => $this->customer->id, 'customer_vehicle_id' => $this->vehicle->id, 'complaint' => 'test', 'labour_cost' => 0],
-            [['spare_part_id' => $this->part->id, 'quantity' => 3, 'warranty_days' => 0]],
             $this->user
         );
+        $this->service->addItem($wo, $this->part, 3, $this->user);
 
         // Stock dikurangi saat WO dibuat
         $this->part->refresh();
@@ -112,15 +109,10 @@ class WorkOrderServiceTest extends TestCase
     {
         $wo = $this->service->createWorkOrder(
             ['customer_id' => $this->customer->id, 'customer_vehicle_id' => $this->vehicle->id, 'complaint' => 'test', 'labour_cost' => 50000],
-            [],
             $this->user
         );
 
-        $this->service->addItem($wo, [
-            'spare_part_id' => $this->part->id,
-            'quantity'      => 2,
-            'warranty_days' => 0,
-        ], $this->user);
+        $this->service->addItem($wo, $this->part, 2, $this->user);
 
         $wo->refresh();
         // grand_total = (2 × 50000) + 50000 (labour) = 150000

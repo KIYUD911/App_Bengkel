@@ -37,9 +37,10 @@ class WorkOrderFlowTest extends TestCase
         // 1. Create WO
         $wo = $this->service->createWorkOrder(
             ['customer_id' => $this->customer->id, 'customer_vehicle_id' => $this->vehicle->id, 'complaint' => 'Rem blong', 'labour_cost' => 100000],
-            [['spare_part_id' => $this->part->id, 'quantity' => 2, 'warranty_days' => 30]],
             $this->kasir
         );
+        $this->service->addItem($wo, $this->part, 2, $this->kasir);
+        $wo->refresh();
 
         $this->assertEquals('pending', $wo->status);
         $this->assertEquals(300000, (float) $wo->grand_total); // 2×100k + 100k labour
@@ -50,10 +51,9 @@ class WorkOrderFlowTest extends TestCase
         $this->assertEquals('in_progress', $wo->status);
 
         // 3. Complete WO
-        $this->service->completeWorkOrder($wo, [
-            'payment_method' => 'cash',
-            'mechanic_notes' => 'Rem sudah diganti',
-        ], $this->kasir);
+        $wo->update(['mechanic_notes' => 'Rem sudah diganti']);
+        $this->service->updateStatus($wo, 'completed', $this->kasir);
+        $this->service->processPayment($wo, 'tunai', $this->kasir);
 
         $wo->refresh();
         $this->assertEquals('completed', $wo->status);
@@ -69,9 +69,9 @@ class WorkOrderFlowTest extends TestCase
     {
         $wo = $this->service->createWorkOrder(
             ['customer_id' => $this->customer->id, 'customer_vehicle_id' => $this->vehicle->id, 'complaint' => 'test', 'labour_cost' => 0],
-            [['spare_part_id' => $this->part->id, 'quantity' => 5, 'warranty_days' => 0]],
             $this->kasir
         );
+        $this->service->addItem($wo, $this->part, 5, $this->kasir);
 
         // Stock dikurangi
         $this->part->refresh();
@@ -94,7 +94,6 @@ class WorkOrderFlowTest extends TestCase
 
         $wo = $this->service->createWorkOrder(
             ['customer_id' => $this->customer->id, 'customer_vehicle_id' => $this->vehicle->id, 'complaint' => 'test', 'labour_cost' => 0],
-            [],
             $this->kasir
         );
 

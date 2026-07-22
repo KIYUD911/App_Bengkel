@@ -32,7 +32,7 @@ class DirectSaleServiceTest extends TestCase
     public function test_create_direct_sale_deducts_stock(): void
     {
         $this->service->createDirectSale(
-            data: ['walk_in_name' => 'Walk-in Test', 'payment_method' => 'cash'],
+            data: ['walk_in_name' => 'Walk-in Test', 'payment_method' => 'tunai'],
             items: [['spare_part_id' => $this->part->id, 'quantity' => 3]],
             user: $this->user,
         );
@@ -45,7 +45,7 @@ class DirectSaleServiceTest extends TestCase
     public function test_walkin_sale_does_not_update_customer_stats(): void
     {
         $sale = $this->service->createDirectSale(
-            data: ['walk_in_name' => 'Walk-in Tamu', 'payment_method' => 'cash'],
+            data: ['walk_in_name' => 'Walk-in Tamu', 'payment_method' => 'tunai'],
             items: [['spare_part_id' => $this->part->id, 'quantity' => 1]],
             user: $this->user,
         );

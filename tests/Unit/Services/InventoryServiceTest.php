@@ -76,7 +76,7 @@ class InventoryServiceTest extends TestCase
         $this->assertEquals(6, $this->part->quantity_available);
 
         // Rollback — harus kembali ke 10
-        $this->service->rollbackStock($this->part, 4, 'cancel_wo', $this->user);
+        $this->service->addStock($this->part, 4, 'wo_cancel_rollback', $this->user);
         $this->part->refresh();
         $this->assertEquals(10, $this->part->quantity_available);
     }
