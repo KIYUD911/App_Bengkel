@@ -2,116 +2,198 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Invoice {{ $wo->wo_number }}</title>
 <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 11px; color: #1E293B; }
-    .header { background: #0F172A; color: white; padding: 20px 25px; }
-    .header h1 { font-size: 20px; font-weight: 700; }
-    .header p { font-size: 10px; color: #94A3B8; margin-top: 2px; }
-    .badge { display: inline-block; background: #2563EB; color: white; padding: 2px 8px; border-radius: 10px; font-size: 9px; font-weight: 700; margin-top: 6px; }
-    .section { padding: 16px 25px; }
-    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-    .info-block p.label { font-size: 9px; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
-    .info-block p.value { font-weight: 600; font-size: 11px; }
-    table { width: 100%; border-collapse: collapse; }
-    thead th { background: #F1F5F9; padding: 7px 10px; font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B; text-align: left; border-bottom: 1px solid #E2E8F0; }
-    tbody td { padding: 8px 10px; border-bottom: 1px solid #F1F5F9; font-size: 10px; }
-    .text-right { text-align: right; }
-    .text-center { text-align: center; }
-    .total-section { padding: 12px 25px; background: #F8FAFC; border-top: 2px solid #E2E8F0; }
-    .total-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 11px; }
-    .total-row.grand { font-size: 14px; font-weight: 700; color: #2563EB; border-top: 2px solid #2563EB; margin-top: 6px; padding-top: 8px; }
-    .footer { padding: 14px 25px; text-align: center; color: #94A3B8; font-size: 9px; border-top: 1px solid #E2E8F0; }
-    .divider { border: none; border-top: 1px solid #E2E8F0; margin: 0; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 11px; color: #1E293B; line-height: 1.5; }
+
+.header { background: #0F172A; color: white; padding: 18px 24px; display: flex; justify-content: space-between; align-items: flex-start; }
+.company-name { font-size: 18px; font-weight: 700; letter-spacing: .02em; margin-bottom: 2px; }
+.company-info { font-size: 10px; opacity: .8; line-height: 1.6; }
+.invoice-badge { background: #2563EB; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 700; letter-spacing: .05em; margin-bottom: 4px; text-align: center; }
+.invoice-meta { font-size: 10px; text-align: right; opacity: .85; line-height: 1.6; }
+
+.body { padding: 18px 24px; }
+
+.info-grid { display: flex; gap: 16px; margin-bottom: 14px; }
+.info-box { flex: 1; border: 1px solid #E2E8F0; border-radius: 6px; padding: 10px 12px; }
+.info-box-title { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748B; margin-bottom: 6px; }
+.info-row { display: flex; margin-bottom: 2px; }
+.info-label { width: 100px; color: #64748B; flex-shrink: 0; }
+.info-value { font-weight: 500; }
+
+.section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #64748B; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1.5px solid #E2E8F0; }
+
+table { width: 100%; border-collapse: collapse; }
+thead th { background: #1E293B; color: white; padding: 7px 10px; font-size: 10px; font-weight: 600; text-align: left; }
+thead th.right { text-align: right; }
+tbody td { padding: 8px 10px; border-bottom: 1px solid #F1F5F9; font-size: 10.5px; vertical-align: top; }
+tbody td.right { text-align: right; }
+tbody tr:nth-child(even) { background: #F8FAFC; }
+.warranty-note { font-size: 9px; color: #16A34A; margin-top: 2px; }
+
+.totals { margin-top: 10px; display: flex; justify-content: flex-end; }
+.totals-table { width: 260px; border: 1px solid #E2E8F0; border-radius: 6px; overflow: hidden; }
+.totals-table td { padding: 6px 12px; border-bottom: 1px solid #F1F5F9; font-size: 11px; }
+.totals-table tr:last-child td { background: #1E293B; color: white; font-weight: 700; font-size: 12px; }
+.totals-table .right { text-align: right; }
+
+.complaint-box { margin: 14px 0; padding: 10px 12px; border: 1px solid #E2E8F0; border-radius: 6px; }
+.text-muted { color: #64748B; }
+
+.payment-info { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 6px; padding: 10px 12px; margin-top: 12px; display: flex; align-items: center; gap: 16px; }
+.payment-badge { background: #16A34A; color: white; padding: 3px 10px; border-radius: 4px; font-weight: 700; font-size: 10px; letter-spacing: .05em; }
+
+.sign-area { margin-top: 24px; display: flex; gap: 20px; }
+.sign-box { flex: 1; border: 1px solid #E2E8F0; border-radius: 6px; padding: 10px 12px; }
+.sign-title { font-size: 10px; font-weight: 600; color: #64748B; margin-bottom: 50px; }
+.sign-line { border-top: 1px solid #94A3B8; padding-top: 4px; font-size: 10px; color: #64748B; text-align: center; }
+
+.footer { background: #F8FAFC; border-top: 1px solid #E2E8F0; padding: 10px 24px; text-align: center; font-size: 9.5px; color: #64748B; }
 </style>
 </head>
 <body>
 
 {{-- Header --}}
 <div class="header">
-    <h1>CV Masman Sejahtera</h1>
-    <p>Bengkel Kendaraan Bermotor · Jl. Contoh No. 123</p>
-    <span class="badge">INVOICE SERVIS</span>
+    <div>
+        <div class="company-name">CV Masman Sejahtera</div>
+        <div class="company-info">
+            Jl. Bengkel Sejahtera No. 123, Kota<br>
+            Telp: (021) 123-4567 | bengkel@masman.id
+        </div>
+    </div>
+    <div>
+        <div class="invoice-badge">INVOICE</div>
+        <div class="invoice-meta">
+            Dicetak: {{ now()->format('d/m/Y H:i') }}<br>
+            No. WO: <strong>{{ $wo->wo_number }}</strong>
+        </div>
+    </div>
 </div>
 
-{{-- Info WO & Pelanggan --}}
-<div class="section">
+<div class="body">
+
+    {{-- Info Grid: WO + Pelanggan + Kendaraan --}}
     <div class="info-grid">
-        <div class="info-block">
-            <p class="label">No. Work Order</p>
-            <p class="value" style="font-size:14px;font-family:monospace;">{{ $wo->wo_number }}</p>
-            <p class="label" style="margin-top:8px;">Tanggal</p>
-            <p class="value">{{ $wo->created_at->format('d F Y') }}</p>
-            @if($wo->paid_at)
-            <p class="label" style="margin-top:8px;">Tanggal Bayar</p>
-            <p class="value">{{ $wo->paid_at->format('d F Y, H:i') }}</p>
-            @endif
+        {{-- Info WO --}}
+        <div class="info-box">
+            <div class="info-box-title">📋 Informasi Work Order</div>
+            <div class="info-row"><span class="info-label">No. WO</span><span class="info-value">{{ $wo->wo_number }}</span></div>
+            <div class="info-row"><span class="info-label">Tanggal Buat</span><span class="info-value">{{ $wo->created_at->format('d/m/Y H:i') }}</span></div>
+            <div class="info-row"><span class="info-label">Status</span><span class="info-value">{{ ucfirst($wo->status) }}</span></div>
+            <div class="info-row"><span class="info-label">Kasir</span><span class="info-value">{{ $wo->user?->name ?? '-' }}</span></div>
         </div>
-        <div class="info-block">
-            <p class="label">Pelanggan</p>
-            <p class="value">{{ $wo->customer->name ?? 'Walk-in' }}</p>
-            @if($wo->customer?->phone)
-            <p style="color:#64748B;font-size:10px;margin-top:2px;">{{ $wo->customer->phone }}</p>
-            @endif
-            <p class="label" style="margin-top:8px;">Kendaraan</p>
-            <p class="value">{{ $wo->vehicle->brand ?? '' }} {{ $wo->vehicle->model ?? '-' }}</p>
-            <p style="color:#64748B;font-size:10px;">{{ $wo->vehicle->license_plate ?? '' }} · {{ $wo->vehicle->year ?? '' }}</p>
+
+        {{-- Info Pelanggan --}}
+        <div class="info-box">
+            <div class="info-box-title">👤 Pelanggan</div>
+            <div class="info-row"><span class="info-label">Nama</span><span class="info-value">{{ $wo->customer?->name ?? '-' }}</span></div>
+            <div class="info-row"><span class="info-label">Telepon</span><span class="info-value">{{ $wo->customer?->phone ?? '-' }}</span></div>
+            <div class="info-row"><span class="info-label">Alamat</span><span class="info-value">{{ $wo->customer?->address ?? '-' }}</span></div>
+        </div>
+
+        {{-- Info Kendaraan --}}
+        <div class="info-box">
+            <div class="info-box-title">🚗 Kendaraan</div>
+            <div class="info-row"><span class="info-label">Plat Nomor</span><span class="info-value" style="font-weight:700;">{{ $wo->vehicle?->license_plate ?? '-' }}</span></div>
+            <div class="info-row"><span class="info-label">Merek/Model</span><span class="info-value">{{ $wo->vehicle?->brand }} {{ $wo->vehicle?->model }}</span></div>
+            <div class="info-row"><span class="info-label">Tahun</span><span class="info-value">{{ $wo->vehicle?->year ?? '-' }}</span></div>
+            <div class="info-row"><span class="info-label">VIN</span><span class="info-value">{{ $wo->vehicle?->vin ?? '-' }}</span></div>
         </div>
     </div>
 
-    <div style="background:#FFF7ED;border:1px solid #FDE68A;border-radius:4px;padding:8px 12px;margin-bottom:12px;">
-        <span style="font-size:9px;color:#92400E;font-weight:700;">KELUHAN: </span>
-        <span style="font-size:10px;">{{ $wo->complaint }}</span>
+    {{-- Keluhan & Solusi --}}
+    @if($wo->complaint || $wo->mechanic_notes)
+    <div class="complaint-box">
+        <div style="display:flex;gap:16px;">
+            @if($wo->complaint)
+            <div style="flex:1;">
+                <div class="section-title">Keluhan Pelanggan</div>
+                <p>{{ $wo->complaint ?: '-' }}</p>
+            </div>
+            @endif
+            @if($wo->mechanic_notes)
+            <div style="flex:1;">
+                <div class="section-title">Solusi / Catatan Mekanik</div>
+                <p>{{ $wo->mechanic_notes ?: '-' }}</p>
+            </div>
+            @endif
+        </div>
     </div>
+    @endif
 
-    {{-- Tabel Item --}}
+    {{-- Tabel Sparepart --}}
+    <div class="section-title" style="margin-top:4px;">Daftar Sparepart & Jasa</div>
     <table>
         <thead>
             <tr>
-                <th>#</th>
+                <th style="width:30px;">No</th>
                 <th>Nama Sparepart</th>
-                <th class="text-center">Qty</th>
-                <th class="text-right">Harga</th>
-                <th class="text-right">Subtotal</th>
-                <th class="text-center">Garansi</th>
+                <th class="right" style="width:60px;">Qty</th>
+                <th class="right" style="width:110px;">Harga Satuan</th>
+                <th class="right" style="width:120px;">Subtotal</th>
             </tr>
         </thead>
         <tbody>
             @foreach($wo->items as $i => $item)
             <tr>
                 <td>{{ $i + 1 }}</td>
-                <td>{{ $item->sparePart->name ?? '-' }}</td>
-                <td class="text-center">{{ $item->quantity }}</td>
-                <td class="text-right">Rp {{ number_format($item->unit_price, 0, ',', '.') }}</td>
-                <td class="text-right" style="font-weight:600;">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
-                <td class="text-center">{{ $item->warranty_days > 0 ? $item->warranty_days.' hr' : '-' }}</td>
+                <td>
+                    {{ $item->sparePart?->name ?? '-' }}
+                    @if($item->warranty_days > 0)
+                        <div class="warranty-note">✅ Garansi {{ $item->warranty_days }} hari s/d {{ $item->warranty_end_date?->format('d/m/Y') }}</div>
+                    @endif
+                </td>
+                <td class="right">{{ $item->quantity }} {{ $item->sparePart?->unit }}</td>
+                <td class="right">Rp {{ number_format($item->unit_price, 0, ',', '.') }}</td>
+                <td class="right">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
             </tr>
             @endforeach
-            <tr>
-                <td colspan="4" style="padding:8px 10px;">Biaya Jasa</td>
-                <td class="text-right" style="font-weight:600;padding:8px 10px;">Rp {{ number_format($wo->labour_cost, 0, ',', '.') }}</td>
-                <td></td>
-            </tr>
         </tbody>
     </table>
-</div>
 
-{{-- Total --}}
-<div class="total-section">
-    <div class="total-row"><span>Total Sparepart</span><span>Rp {{ number_format($wo->total_parts_cost, 0, ',', '.') }}</span></div>
-    <div class="total-row"><span>Biaya Jasa</span><span>Rp {{ number_format($wo->labour_cost, 0, ',', '.') }}</span></div>
-    <div class="total-row grand"><span>GRAND TOTAL</span><span>Rp {{ number_format($wo->grand_total, 0, ',', '.') }}</span></div>
-    @if($wo->payment_method)
-    <div class="total-row" style="margin-top:6px;color:#64748B;"><span>Metode Pembayaran</span><span style="font-weight:600;">{{ ucfirst($wo->payment_method) }}</span></div>
+    {{-- Totals --}}
+    <div class="totals">
+        <table class="totals-table">
+            <tr><td>Subtotal Sparepart</td><td class="right">Rp {{ number_format($wo->total_parts_cost, 0, ',', '.') }}</td></tr>
+            <tr><td>Biaya Jasa Mekanik</td><td class="right">Rp {{ number_format($wo->labour_cost, 0, ',', '.') }}</td></tr>
+            <tr><td>GRAND TOTAL</td><td class="right">Rp {{ number_format($wo->grand_total, 0, ',', '.') }}</td></tr>
+        </table>
+    </div>
+
+    {{-- Info Pembayaran --}}
+    @if($wo->paid_at)
+    <div class="payment-info">
+        <span class="payment-badge">LUNAS</span>
+        <span>Metode: <strong>{{ ucfirst($wo->payment_method ?? '-') }}</strong></span>
+        <span>Tanggal Bayar: <strong>{{ $wo->paid_at->format('d/m/Y H:i') }}</strong></span>
+    </div>
     @endif
+
+    {{-- Tanda Tangan --}}
+    <div class="sign-area">
+        <div class="sign-box">
+            <div class="sign-title">Hormat kami,</div>
+            <div class="sign-line">( {{ $wo->user?->name ?? 'Kasir' }} )</div>
+        </div>
+        <div class="sign-box">
+            <div class="sign-title">Pelanggan,</div>
+            <div class="sign-line">( {{ $wo->customer?->name ?? '____________________' }} )</div>
+        </div>
+        <div class="sign-box" style="flex:.5;">
+            <div class="sign-title" style="margin-bottom:35px;font-size:9px;color:#94A3B8;">
+                Stempel / Tanda Tangan Bengkel
+            </div>
+            <div class="sign-line">( Stempel )</div>
+        </div>
+    </div>
+
 </div>
 
 {{-- Footer --}}
 <div class="footer">
-    <p>Terima kasih telah mempercayakan kendaraan Anda kepada CV Masman Sejahtera</p>
-    <p style="margin-top:3px;">Simpan invoice ini sebagai bukti garansi servis</p>
-    <p style="margin-top:6px;font-size:8px;">Dicetak: {{ now()->format('d/m/Y H:i') }} · Kasir: {{ $wo->user->name ?? '-' }}</p>
+    ⚙️ Garansi berlaku sesuai ketentuan yang tertera di atas. Terima kasih telah mempercayakan kendaraan Anda kepada kami.<br>
+    CV Masman Sejahtera — Bengkel Terpercaya Anda
 </div>
 
 </body>

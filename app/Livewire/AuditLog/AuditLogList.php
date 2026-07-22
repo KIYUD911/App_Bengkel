@@ -4,10 +4,12 @@ namespace App\Livewire\AuditLog;
 
 use App\Models\AuditLog;
 use App\Services\AuditTrailService;
+use App\Exports\AuditLogExport;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 #[Layout('layouts.app')]
 class AuditLogList extends Component
@@ -64,6 +66,19 @@ class AuditLogList extends Component
     public function toggleExpand(int $id): void
     {
         $this->expandedId = ($this->expandedId === $id) ? null : $id;
+    }
+
+    public function exportExcel(): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    {
+        return Excel::download(
+            new AuditLogExport(
+                $this->action    ?: null,
+                $this->tableName ?: null,
+                $this->dateFrom  ?: null,
+                $this->dateTo    ?: null,
+            ),
+            'audit-log-' . now()->format('Ymd-His') . '.xlsx'
+        );
     }
 
     public function exportCsv(): \Symfony\Component\HttpFoundation\StreamedResponse

@@ -24,9 +24,10 @@ use App\Livewire\RecycleBin\RecycleBinList;
 use App\Livewire\Auth\LoginForm;
 
 // ─── GUEST ROUTES (belum login) ─────────────────────────────
-Route::middleware('guest')->group(function () {
-    Route::get('/login', LoginForm::class)->name('login');                    // Livewire full-page
-    Route::post('/login', [AuthController::class, 'authenticate'])->name('login.authenticate'); // fallback non-JS
+// throttle: max 5 percobaan login per menit per IP (brute-force protection)
+Route::middleware(['guest', 'throttle:5,1'])->group(function () {
+    Route::get('/login', LoginForm::class)->name('login');
+    Route::post('/login', [AuthController::class, 'authenticate'])->name('login.authenticate');
 });
 
 // ─── AUTH ROUTES (semua role yang sudah login) ───────────────

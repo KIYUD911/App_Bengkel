@@ -29,6 +29,24 @@ class DashboardWidget extends Component
     }
 
     #[Computed]
+    public function todayNewWo(): int
+    {
+        return WorkOrder::whereDate('created_at', today())->count();
+    }
+
+    #[Computed]
+    public function todayCompletedWo(): int
+    {
+        return WorkOrder::completed()->whereDate('paid_at', today())->count();
+    }
+
+    #[Computed]
+    public function todayDirectSales(): int
+    {
+        return DirectSale::whereDate('created_at', today())->count();
+    }
+
+    #[Computed]
     public function activeWoCount(): int
     {
         return WorkOrder::active()->count();
@@ -55,10 +73,11 @@ class DashboardWidget extends Component
         return SparePart::lowStock(5)->count();
     }
 
+    /** Data grafik pendapatan 30 hari (line chart) */
     #[Computed]
     public function revenueChart(): array
     {
-        $days = collect(range(6, 0))->map(function ($daysAgo) {
+        $days = collect(range(29, 0))->map(function ($daysAgo) {
             $date = now()->subDays($daysAgo)->toDateString();
 
             $wo = WorkOrder::completed()
@@ -69,8 +88,10 @@ class DashboardWidget extends Component
                 ->sum('grand_total');
 
             return [
-                'label' => now()->subDays($daysAgo)->format('d M'),
-                'value' => (float) ($wo + $ds),
+                'label' => now()->subDays($daysAgo)->format('d/m'),
+                'wo'    => (float) $wo,
+                'ds'    => (float) $ds,
+                'total' => (float) ($wo + $ds),
             ];
         });
 
@@ -94,6 +115,15 @@ class DashboardWidget extends Component
     public function recentWorkOrders(): \Illuminate\Database\Eloquent\Collection
     {
         return WorkOrder::with(['customer', 'vehicle'])
+            ->latest()
+            ->take(5)
+            ->get();
+    }
+
+    #[Computed]
+    public function recentDirectSales(): \Illuminate\Database\Eloquent\Collection
+    {
+        return DirectSale::with(['customer'])
             ->latest()
             ->take(5)
             ->get();
